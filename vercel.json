@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "server.js": { "includeFiles": "audio-cache/**", "maxDuration": 30 }
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+.env
+.vercel/
+.playwright-mcp/
+.devin/
+.claude/
+skills-lock.json
+legacy/
+public/models/

@@ -1,0 +1,8 @@
+legacy/
+public/models/
+docs/
+scripts/
+.playwright-mcp/
+.devin/
+.claude/
+skills-lock.json

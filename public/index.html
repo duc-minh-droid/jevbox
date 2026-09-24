@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>JEVBOX — AI Fight Night</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%23ffc34d'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/style.css" />
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="scene"></div>
+<div id="labels"></div>
+<div id="flash-vignette"></div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <header class="hud-top">
+    <section class="plate red" id="plate-red">
+      <div class="plate-row">
+        <span class="corner">RED</span>
+        <span class="fname" id="red-name">KANE</span>
+        <span class="nick" id="red-nick"></span>
+        <span class="kd" id="red-kd"></span>
+      </div>
+      <div class="hp"><i class="ghost" id="red-ghost"></i><i class="fill" id="red-hp"></i><b id="red-hpn">100</b></div>
+      <div class="subs">
+        <div class="sub"><label>STA</label><div class="mini st"><i id="red-st"></i></div></div>
+        <div class="sub"><label>POISE</label><div class="mini po"><i id="red-po"></i></div></div>
+      </div>
+      <div class="super red"><i id="red-sup"></i><span>SUPER</span></div>
+      <div class="chips" id="red-chips"></div>
+    </section>
+
+    <section class="center">
+      <div class="round-pill" id="round-pill">ROUND 1 <span>/ 3</span></div>
+      <div class="clock" id="clock">0:45</div>
+      <div class="card-row">
+        <span class="cr red" id="card-red">0</span>
+        <div class="mom"><i id="mom"></i></div>
+        <span class="cr blue" id="card-blue">0</span>
+      </div>
+      <div class="card-label">SCORECARD · MOMENTUM</div>
+    </section>
+
+    <section class="plate blue" id="plate-blue">
+      <div class="plate-row">
+        <span class="kd" id="blue-kd"></span>
+        <span class="nick" id="blue-nick"></span>
+        <span class="fname" id="blue-name">VOSS</span>
+        <span class="corner">BLUE</span>
+      </div>
+      <div class="hp"><i class="ghost" id="blue-ghost"></i><i class="fill" id="blue-hp"></i><b id="blue-hpn">100</b></div>
+      <div class="subs">
+        <div class="sub"><label>POISE</label><div class="mini po"><i id="blue-po"></i></div></div>
+        <div class="sub"><label>STA</label><div class="mini st"><i id="blue-st"></i></div></div>
+      </div>
+      <div class="super blue"><i id="blue-sup"></i><span>SUPER</span></div>
+      <div class="chips" id="blue-chips"></div>
+    </section>
+  </header>
+
+  <!-- Jev brain panels -->
+  <aside class="brain red" id="brain-red">
+    <div class="brain-head"><span class="dot"></span>JEV · <b id="red-intent">—</b></div>
+    <div class="probs" id="red-probs"></div>
+    <div class="brain-foot" id="red-reflex"></div>
+  </aside>
+  <aside class="brain blue" id="brain-blue">
+    <div class="brain-head"><span class="dot"></span>JEV · <b id="blue-intent">—</b></div>
+    <div class="probs" id="blue-probs"></div>
+    <div class="brain-foot" id="blue-reflex"></div>
+  </aside>
+
+  <!-- commentary lower third -->
+  <div class="lower-third" id="lower-third">
+    <div class="lt-line old" id="lt-old"></div>
+    <div class="lt-line" id="lt-now"><span class="voice">JIM</span><span class="txt">Welcome to fight night.</span></div>
+  </div>
+
+  <!-- dock -->
+  <nav class="dock">
+    <button id="btn-cam" title="Camera (C)"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span id="cam-label">AUTO</span></button>
+    <button id="btn-speed" title="Speed (1-4)"><svg viewBox="0 0 24 24"><path d="M5 6l7 6-7 6zM12 6l7 6-7 6z"/></svg><span id="speed-label">1×</span></button>
+    <button id="btn-sound" title="Sound (M)"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd-wave" d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12"/></svg></button>
+    <button id="btn-voice" title="Commentary voice (V)"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span id="voice-label">OFF</span></button>
+    <button id="btn-brain" title="Jev brain (B)" class="on"><svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 00-3 3 3 3 0 00-2 5 3 3 0 002 5 3 3 0 006 0V4zM15 4a3 3 0 013 3 3 3 0 012 5 3 3 0 01-2 5 3 3 0 01-6 0"/></svg></button>
+    <button id="btn-stats" title="Stats (S)"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+    <button id="btn-restart" title="Rematch (R)"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.3-5.7M20 4v5h-5"/></svg></button>
+  </nav>
+  <div class="ai-status"><span class="badge" id="src-badge">…</span><span id="latency"></span><span id="thinking" class="thinking"></span></div>
+</div>
+
+<!-- center callouts -->
+<div id="callout"></div>
+
+<!-- stats drawer -->
+<aside id="stats" class="drawer hidden">
+  <div class="drawer-head"><span>FIGHT STATS</span><button class="x" id="stats-close">✕</button></div>
+  <div class="st-names"><span class="red" id="st-red">KANE</span><span class="blue" id="st-blue">VOSS</span></div>
+  <div id="stat-rows"></div>
+  <div class="cards" id="stat-cards"></div>
+</aside>
+
+<!-- round break -->
+<div id="break" class="overlay hidden">
+  <div class="panel break-panel">
+    <div class="kicker" id="break-kicker">END OF ROUND 1</div>
+    <div class="break-score" id="break-score"></div>
+    <div id="break-rows"></div>
+    <div class="break-next" id="break-next">Round 2 starts in 7</div>
+  </div>
+</div>
+
+<!-- character select -->
+<div id="intro" class="overlay select">
+  <div class="sel-wrap">
+    <div class="sel-head">
+      <div class="brand small">JEV<span>BOX</span></div>
+      <div class="sel-title" id="sel-title">CHOOSE <b class="red">RED CORNER</b></div>
+    </div>
+    <div class="sel-main">
+      <section class="sel-side red" id="sel-red">
+        <div class="ss-img"><img id="sel-red-img" alt="" /></div>
+        <div class="ss-info">
+          <div class="ss-corner">RED CORNER</div>
+          <div class="ss-name" id="sel-red-name">—</div>
+          <div class="ss-nick" id="sel-red-nick"></div>
+          <div class="ss-style" id="sel-red-style"></div>
+          <div class="ss-stats" id="sel-red-stats"></div>
+          <div class="ss-super" id="sel-red-super"></div>
+          <div class="ss-bio" id="sel-red-bio"></div>
+        </div>
+      </section>
+      <div class="sel-center">
+        <div class="sel-grid" id="sel-grid"></div>
+        <div class="intro-opts">
+          <label>Rounds <select id="opt-rounds"><option>1</option><option selected>3</option><option>5</option></select></label>
+          <label>Length <select id="opt-len"><option value="30">30s</option><option value="45" selected>45s</option><option value="60">60s</option><option value="90">90s</option></select></label>
+          <label>Brain <select id="opt-ai"><option value="jev">Jev (live API)</option><option value="local">Local heuristic</option></select></label>
+        </div>
+        <button id="start" class="cta" disabled>FIGHT!</button>
+        <div class="hint">Click / Enter to pick · arrows move · X random · Backspace undo</div>
+        <div class="ai-line" id="ai-line"></div>
+      </div>
+      <section class="sel-side blue" id="sel-blue">
+        <div class="ss-img"><img id="sel-blue-img" alt="" /></div>
+        <div class="ss-info">
+          <div class="ss-corner">BLUE CORNER</div>
+          <div class="ss-name" id="sel-blue-name">—</div>
+          <div class="ss-nick" id="sel-blue-nick"></div>
+          <div class="ss-style" id="sel-blue-style"></div>
+          <div class="ss-stats" id="sel-blue-stats"></div>
+          <div class="ss-super" id="sel-blue-super"></div>
+          <div class="ss-bio" id="sel-blue-bio"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- VS splash -->
+<div id="vs" class="hidden">
+  <div class="vs-half red"><img id="vs-red-img" alt="" /><div class="vs-name" id="vs-red-name"></div><div class="vs-nick" id="vs-red-nick"></div></div>
+  <div class="vs-half blue"><img id="vs-blue-img" alt="" /><div class="vs-name" id="vs-blue-name"></div><div class="vs-nick" id="vs-blue-nick"></div></div>
+  <div class="vs-x">VS</div>
+</div>
+
+<!-- super move cut-in -->
+<div id="cutin" class="hidden"><div class="ci-band"><img id="ci-img" alt="" /><div class="ci-text"><div class="ci-who" id="ci-who"></div><div class="ci-move" id="ci-move"></div></div></div></div>
+
+<!-- result -->
+<div id="result" class="overlay hidden">
+  <div class="panel result-panel">
+    <div class="kicker" id="res-method">KNOCKOUT</div>
+    <div class="res-name" id="res-name">KANE</div>
+    <div class="res-sub" id="res-sub"></div>
+    <div id="res-rows"></div>
+    <div class="cards" id="res-cards"></div>
+    <div class="res-btns"><button class="cta" id="rematch">REMATCH</button><button class="ghost-btn" id="res-new">New fighters</button><button class="ghost-btn" id="res-close">Keep watching</button></div>
+  </div>
+</div>
+
+<div id="loading"><div class="spin"></div><span>SETTING UP THE RING</span></div>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

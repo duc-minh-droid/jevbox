@@ -1,0 +1,19 @@
+{
+  "name": "jevbox",
+  "version": "1.0.0",
+  "description": "3D AI boxing game: Street Fighter-style roster, every decision made live by Jev (TypeSafe System One)",
+  "scripts": {
+    "start": "node server.js",
+    "prebuild-voices": "node scripts/prebuild-voices.mjs",
+    "capture-demo": "node scripts/capture-demo.mjs && python scripts/make-gif.py 480"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "three": "^0.186.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
