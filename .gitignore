@@ -7,3 +7,7 @@ node_modules/
 skills-lock.json
 legacy/
 public/models/
+
+.vercel
+.env*
+!.env.example

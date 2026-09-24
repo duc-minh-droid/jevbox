@@ -268,7 +268,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ---------- character select ---------- */
 #intro.select { background: radial-gradient(ellipse at 50% 20%, rgba(30,24,50,.55), rgba(5,6,10,.93) 70%); padding: 18px; }
 .sel-wrap { width: min(1280px, 100%); height: 100%; display: flex; flex-direction: column; animation: panelin .6s cubic-bezier(.2,.9,.3,1); }
-.sel-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 6px 10px; border-bottom: 1px solid var(--line); }
+.sel-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; justify-content: space-between; padding: 0 6px 10px; border-bottom: 1px solid var(--line); }
 .brand.small { font-size: 38px; }
 .sel-title { font: 700 22px var(--display); letter-spacing: .2em; color: #c9d0e0; }
 .sel-title b.red { color: var(--red); } .sel-title b.blue { color: var(--blue); } .sel-title b.gold { color: var(--gold); }
@@ -355,4 +355,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .sel-grid { grid-template-columns: repeat(5, 1fr); }
   .ss-name { font-size: 28px; }
   .ss-stats, .ss-bio { display: none; }
+  .brand.small { font-size: 28px; }
+  .sel-title { font-size: 15px; }
 }
